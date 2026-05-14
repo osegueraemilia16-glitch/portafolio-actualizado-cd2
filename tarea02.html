@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Tarea 02 – Lenguajes de Diseño y Programación</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Lato:wght@300;400;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --rosa-claro: #fce4ec;
+      --rosa-medio: #f8bbd0;
+      --rosa-oscuro: #f48fb1;
+      --rosa-acento: #e91e8c;
+      --hueso: #f5f0e8;
+      --blanco: #ffffff;
+      --negro: #1a1a1a;
+      --vino: #880e4f;
+      --vino-medio: #c2185b;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Lato', sans-serif;
+      background: var(--hueso);
+      color: var(--negro);
+    }
+
+    /* ── BOTÓN ATRÁS ── */
+    .nav-back {
+      position: fixed;
+      top: 18px; left: 20px;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 9px 18px;
+      background: rgba(136,14,79,0.88);
+      backdrop-filter: blur(6px);
+      color: #fff;
+      font-family: 'Lato', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      text-decoration: none;
+      border-radius: 30px;
+      box-shadow: 0 4px 14px rgba(136,14,79,0.3);
+      transition: background 0.2s, transform 0.2s;
+    }
+    .nav-back:hover { background: var(--vino-medio); transform: translateX(-3px); }
+    .nav-back svg { width: 14px; height: 14px; fill: #fff; }
+
+    /* ── HERO – estilo tecnológico oscuro con degradado verde/azul ── */
+    .hero {
+      min-height: 420px;
+      background: linear-gradient(135deg, #0d0d1a 0%, #1a0a2e 40%, #0a2818 100%);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 90px 40px 60px;
+      text-align: center;
+    }
+
+    /* grid de código decorativo */
+    .hero::before {
+      content: '</> { } <html> function() => .class #id var const let import';
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Fira Code', monospace;
+      font-size: 0.9rem;
+      color: rgba(0,255,120,0.06);
+      word-break: break-all;
+      line-height: 2.2;
+      padding: 20px;
+      letter-spacing: 0.1em;
+      pointer-events: none;
+    }
+
+    /* círculo glow */
+    .hero::after {
+      content: '';
+      position: absolute;
+      width: 500px; height: 500px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(233,30,140,0.15) 0%, transparent 70%);
+      top: 50%; left: 50%;
+      transform: translate(-50%,-50%);
+      pointer-events: none;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(0,255,120,0.1);
+      border: 1px solid rgba(0,255,120,0.3);
+      color: #4dff9a;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      padding: 5px 16px;
+      border-radius: 20px;
+      margin-bottom: 22px;
+      position: relative; z-index: 2;
+    }
+
+    .hero h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      font-weight: 900;
+      color: #fff;
+      line-height: 1.1;
+      margin-bottom: 14px;
+      position: relative; z-index: 2;
+    }
+
+    .hero h1 span { color: var(--rosa-oscuro); }
+
+    .hero-sub {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.92rem;
+      color: rgba(77,255,154,0.7);
+      margin-bottom: 28px;
+      position: relative; z-index: 2;
+    }
+
+    .hero-chips {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+      position: relative; z-index: 2;
+    }
+
+    .hero-chip {
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.15);
+      color: rgba(255,255,255,0.75);
+      font-size: 0.78rem;
+      padding: 5px 14px;
+      border-radius: 12px;
+    }
+
+    /* ── WRAPPER CONTENIDO ── */
+    .content {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 56px 28px 70px;
+    }
+
+    /* ── INTRO ── */
+    .intro-box {
+      background: white;
+      border-left: 5px solid var(--rosa-acento);
+      border-radius: 0 12px 12px 0;
+      padding: 24px 28px;
+      margin-bottom: 52px;
+      box-shadow: 0 4px 18px rgba(233,30,140,0.08);
+    }
+    .intro-box p { font-size: 1.05rem; line-height: 1.78; color: #333; }
+
+    /* ── ENCABEZADO DE CATEGORÍA ── */
+    .cat-header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 32px;
+      padding-bottom: 14px;
+      border-bottom: 2px solid var(--rosa-medio);
+    }
+    .cat-icon {
+      width: 50px; height: 50px;
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.5rem;
+      flex-shrink: 0;
+    }
+    .cat-icon.web  { background: linear-gradient(135deg,#e3f2fd,#bbdefb); }
+    .cat-icon.desk { background: linear-gradient(135deg,#f3e5f5,#e1bee7); }
+    .cat-icon.dis  { background: linear-gradient(135deg,#fce4ec,#f8bbd0); }
+
+    .cat-header h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.7rem;
+      font-weight: 700;
+      color: var(--vino);
+    }
+    .cat-header p { font-size: 0.88rem; color: #666; margin-top: 3px; }
+
+    /* ── GRID LENGUAJES ── */
+    .lang-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 24px;
+      margin-bottom: 58px;
+    }
+
+    /* ── CARD LENGUAJE ── */
+    .lang-card {
+      background: white;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 4px 18px rgba(0,0,0,0.07);
+      transition: transform 0.25s, box-shadow 0.25s;
+      display: flex;
+      flex-direction: column;
+    }
+    .lang-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 12px 30px rgba(233,30,140,0.13);
+    }
+
+    /* cabecera de card con logo + imagen */
+    .lc-head {
+      height: 130px;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .lc-head img.lc-bg {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%;
+      object-fit: cover;
+      opacity: 0.18;
+    }
+
+    .lc-head .lc-logo {
+      position: relative; z-index: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .lc-head .lc-logo img {
+      width: 54px; height: 54px;
+      object-fit: contain;
+      filter: drop-shadow(0 3px 8px rgba(0,0,0,0.2));
+    }
+
+    .lc-head .lang-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #fff;
+      text-shadow: 0 1px 6px rgba(0,0,0,0.5);
+      letter-spacing: 0.04em;
+    }
+
+    /* colores por lenguaje */
+    .lc-html  { background: linear-gradient(135deg,#e44d26,#f16529); }
+    .lc-css   { background: linear-gradient(135deg,#1572b6,#33a9dc); }
+    .lc-js    { background: linear-gradient(135deg,#f0db4f,#c8b400); }
+    .lc-php   { background: linear-gradient(135deg,#777bb3,#4f4f9d); }
+    .lc-py    { background: linear-gradient(135deg,#3776ab,#ffd343); }
+    .lc-java  { background: linear-gradient(135deg,#f89820,#b07219); }
+    .lc-cs    { background: linear-gradient(135deg,#9b4993,#68217a); }
+    .lc-cpp   { background: linear-gradient(135deg,#004482,#659ad2); }
+    .lc-figma { background: linear-gradient(135deg,#a259ff,#f24e1e); }
+    .lc-html5 { background: linear-gradient(135deg,#e44d26,#f16529); }
+    .lc-css3  { background: linear-gradient(135deg,#1572b6,#33a9dc); }
+    .lc-xd    { background: linear-gradient(135deg,#ff2bc2,#ff61f6); }
+
+    /* body de la card */
+    .lc-body {
+      padding: 18px 20px 20px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .lc-tag {
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--rosa-acento);
+      margin-bottom: 6px;
+    }
+
+    .lc-desc {
+      font-size: 0.875rem;
+      line-height: 1.65;
+      color: #555;
+      margin-bottom: 16px;
+      flex: 1;
+    }
+
+    /* bloque de código */
+    .code-block {
+      background: #1e1e2e;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .code-bar {
+      background: #2a2a3e;
+      padding: 7px 14px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .code-bar span {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.7rem;
+      color: #888;
+    }
+    .dot { width: 9px; height: 9px; border-radius: 50%; }
+    .dot-r { background: #ff5f57; }
+    .dot-y { background: #febc2e; }
+    .dot-g { background: #28c840; }
+
+    .code-block pre {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.76rem;
+      line-height: 1.7;
+      color: #cdd6f4;
+      padding: 14px 16px;
+      overflow-x: auto;
+      white-space: pre;
+    }
+
+    /* colores sintaxis */
+    .kw  { color: #cba6f7; } /* keyword */
+    .fn  { color: #89b4fa; } /* function */
+    .str { color: #a6e3a1; } /* string */
+    .cm  { color: #6c7086; font-style: italic; } /* comment */
+    .nm  { color: #fab387; } /* number */
+    .tg  { color: #f38ba8; } /* tag */
+    .at  { color: #89dceb; } /* attribute */
+    .vl  { color: #a6e3a1; } /* value */
+    .sel { color: #cba6f7; } /* selector */
+    .pr  { color: #89b4fa; } /* property */
+
+    /* divisor */
+    .divider {
+      display: flex; align-items: center; gap: 14px; margin: 48px 0;
+    }
+    .divider::before, .divider::after {
+      content: ''; flex: 1; height: 1px;
+      background: linear-gradient(to right, transparent, var(--rosa-medio), transparent);
+    }
+    .divider span { font-size: 1rem; color: var(--rosa-acento); }
+
+    /* ── FOOTER ── */
+    footer {
+      background: linear-gradient(90deg, #880e4f 0%, #c2185b 100%);
+      color: #fce4ec;
+      padding: 36px 40px;
+      text-align: center;
+    }
+    .footer-school {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.05rem; font-weight: 700;
+      letter-spacing: 0.04em; margin-bottom: 8px;
+    }
+    .footer-info {
+      font-family: 'Lato', sans-serif;
+      font-size: 0.88rem; font-weight: 300;
+      letter-spacing: 0.08em; opacity: 0.85;
+    }
+    .footer-divider {
+      width: 50px; height: 2px;
+      background: rgba(255,255,255,0.35);
+      margin: 14px auto;
+    }
+
+    @media (max-width: 620px) {
+      .lang-grid { grid-template-columns: 1fr; }
+      .hero { padding: 90px 24px 50px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- BOTÓN ATRÁS -->
+<a href="index (2).html" class="nav-back">
+  <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+  Regresar
+</a>
+
+<!-- ════ HERO ════ -->
+<div class="hero">
+  <span class="hero-badge">✦ Tarea 02 &nbsp;·&nbsp; Cultura Digital 2</span>
+  <h1>Lenguajes de <span>Diseño</span> y Programación</h1>
+  <p class="hero-sub">// explorando la sintaxis del mundo digital</p>
+  <div class="hero-chips">
+    <span class="hero-chip">🌐 Desarrollo Web</span>
+    <span class="hero-chip">🖥️ Escritorio</span>
+    <span class="hero-chip">🎨 Diseño y Maquetación</span>
+    <span class="hero-chip">🤖 IA &amp; Cultura Digital</span>
+  </div>
+</div>
+
+<!-- ════ CONTENIDO ════ -->
+<div class="content">
+
+  <div class="intro-box">
+    <p>Los lenguajes de programación y diseño son las herramientas con las que los desarrolladores y diseñadores crean el mundo digital. Cada uno tiene una sintaxis, un propósito y un ecosistema propios. Conocerlos es el primer paso para entender cómo funciona la tecnología que usamos todos los días.</p>
+  </div>
+
+  <!-- ══ SECCIÓN 1: WEB ══ -->
+  <div class="cat-header">
+    <div class="cat-icon web">🌐</div>
+    <div>
+      <h2>Desarrollo Web</h2>
+      <p>Lenguajes que dan vida a sitios y aplicaciones en el navegador</p>
+    </div>
+  </div>
+
+  <div class="lang-grid">
+
+    <!-- HTML -->
+    <div class="lang-card">
+      <div class="lc-head lc-html">
+        <img class="lc-bg" src="https://images.unsplash.com/photo-1542831371-29b0f74f9713?w=400&q=60" alt=""/>
+        <div class="lc-logo">
+          <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/html5/html5-original.svg" alt="HTML5"/>
+          <span class="lang-name">HTML 5</span>
+        </div>
+      </div>
+      <div class="lc-body">
+        <span class="lc-tag">Lenguaje de Marcado</span>
+        <p class="lc-desc">HTML (HyperText Markup Language) es el esqueleto de toda página web. Define la estructura y el contenido mediante etiquetas que el navegador interpreta.</p>
+        <div class="code-block">
+          <div class="code-bar">
+            <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+            <span>index.html</span>
+          </div>
+          <pre><span class="cm">&lt;!-- Estructura básica --&gt;</span>
+<span class="tg">&lt;!DOCTYPE</span> <span class="at">html</span><span class="tg">&gt;</span>
+<span class="tg">&lt;html</span> <span class="at">lang=</span><span class="str">"es"</span><span class="tg">&gt;</span>
+  <span class="tg">&lt;head&gt;</span>
+    <span class="tg">&lt;title&gt;</span>Mi página<span class="tg">&lt;/title&gt;</span>
+  <span class="tg">&lt;/head&gt;</span>
+  <span class="tg">&lt;body&gt;</span>
+    <span class="tg">&lt;h1&gt;</span>Hola, mundo<span class="tg">&lt;/h1&gt;</span>
+    <span class="tg">&lt;p&gt;</span>Esto es HTML<span class="tg">&lt;/p&gt;</span>
+  <span class="tg">&lt;/body&gt;</span>
+<span class="tg">&lt;/html&gt;</span></pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- CSS -->
+    <div class="lang-card">
+      <div class="lc-head lc-css">
+        <img class="lc-bg" src="https://images.unsplash.com/photo-1507721999472-8ed4421c4af2?w=400&q=60" alt=""/>
+        <div class="lc-logo">
+          <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/css3/css3-original.svg" alt="CSS3"/>
+          <span class="lang-name">CSS 3</span>
+        </div>
+      </div>
+      <div class="lc-body">
+        <span class="lc-tag">Hoja de Estilos</span>
+        <p class="lc-desc">CSS (Cascading Style Sheets) se encarga del diseño visual: colores, tipografías, márgenes, animaciones y la respuesta a diferentes tamaños de pantalla.</p>
+        <div class="code-block">
+          <div class="code-bar">
+            <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+            <span>estilos.css</span>
+          </div>
+          <pre><span class="cm">/* Estilo de un botón */</span>
+<span class="sel">.boton</span> {
+  <span class="pr">background</span>: <span class="vl">#e91e8c</span>;
+  <span class="pr">color</span>: <span class="vl">white</span>;
+  <span class="pr">padding</span>: <span class="nm">10px 20px</span>;
+  <span class="pr">border-radius</span>: <span class="nm">8px</span>;
+  <span class="pr">transition</span>: <span class="vl">all 0.3s</span>;
+}
+<span class="sel">.boton:hover</span> {
+  <span class="pr">transform</span>: <span class="fn">scale</span>(<span class="nm">1.05</span>);
+}</pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- JavaScript -->
+    <div class="lang-card">
+      <div class="lc-head lc-js">
+        <img class="lc-bg" src="https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=400&q=60" alt=""/>
+        <div class="lc-logo">
+          <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg" alt="JS"/>
+          <span class="lang-name">JavaScript</span>
+        </div>
+      </div>
+      <div class="lc-body">
+        <span class="lc-tag">Lenguaje de Scripting</span>
+        <p class="lc-desc">JavaScript da interactividad y lógica a las páginas web. Es el único lenguaje que corre directamente en el navegador, y hoy también en servidores gracias a Node.js.</p>
+        <div class="code-block">
+          <div class="code-bar">
+            <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+            <span>app.js</span>
+          </div>
+          <pre><span class="cm">// Función de saludo</span>
+<span class="kw">const</span> <span class="fn">saludar</span> = (<span class="at">nombre</span>) =&gt; {
+  <span class="kw">return</span> <span class="str">`Hola, ${nombre}!`</span>;
+};
+
+<span class="kw">let</span> usuario = <span class="str">"Emilia"</span>;
+console.<span class="fn">log</span>(<span class="fn">saludar</span>(usuario));
+<span class="cm">// → Hola, Emilia!</span></pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- PHP -->
+    <div class="lang-card">
+      <div class="lc-head lc-php">
+        <img class="lc-bg" src="https://images.unsplash.com/photo-1599507593499-a3f7d7d97667?w=400&q=60" alt=""/>
+        <div class="lc-logo">
+          <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/php/php-original.svg" alt="PHP"/>
+          <span class="lang-name">PHP</span>
+        </div>
+      </div>
+      <div class="lc-body">
+        <span class="lc-tag">Back-end Web</span>
+        <p class="lc-desc">PHP es un lenguaje de servidor ampliamente usado para crear sitios dinámicos. Potencia plataformas como WordPress y Facebook en sus inicios.</p>
+        <div class="code-block">
+          <div class="code-bar">
+            <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+            <span>index.php</span>
+          </div>
+          <pre><span class="tg">&lt;?php</span>
+<span class="cm">// Saludar al usuario</span>
+<span class="kw">$nombre</span> = <span class="str">"Emilia"</span>;
+
+<span class="kw">function</span> <span class="fn">saludar</span>(<span class="kw">$n</span>) {
+  <span class="kw">return</span> <span class="str">"Hola, $n!"</span>;
+}
+
+<span class="fn">echo</span> <span class="fn">saludar</span>(<span class="kw">$nombre</span>);
+<span class="cm">// → Hola, Emilia!</span>
+<span class="tg">?&gt;</span></pre>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /lang-grid web -->
+
+  <div class="divider"><span>✦</span></div>
+
+  <!-- ══ SECCIÓN 2: ESCRITORIO ══ -->
+  <div class="cat-header">
+    <div class="cat-icon desk">🖥️</div>
+    <div>
+      <h2>Desarrollo de Escritorio</h2>
+      <p>Lenguajes para crear aplicaciones que se instalan en computadoras</p>
+    </div>
+  </div>
+
+  <div class="lang-grid">
+
+    <!-- Python -->
+    <div class="lang-card">
+      <div class="lc-head lc-py">
+        <img class="lc-bg" src="https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=400&q=60" alt=""/>
+        <div class="lc-logo">
+          <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg" alt="Python"/>
+          <span class="lang-name">Python</span>
+        </div>
+      </div>
+      <div class="lc-body">
+        <span class="lc-tag">Multipropósito · IA · Escritorio</span>
+        <p class="lc-desc">Python es el lenguaje más popular del mundo hoy en día. Su sintaxis clara lo hace ideal para principiantes, IA, ciencia de datos y aplicaciones de escritorio.</p>
+        <div class="code-block">
+          <div class="code-bar">
+            <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+            <span>main.py</span>
+          </div>
+          <pre><span class="cm"># Lista de materias</span>
+<span class="at">materias</span> = [
+  <span class="str">"Cultura Digital"</span>,
+  <span class="str">"Matemáticas"</span>,
+  <span class="str">"Inglés"</span>
+]
+
+<span class="kw">for</span> m <span class="kw">in</span> materias:
+  <span class="fn">print</span>(<span class="str">f"Materia: {m}"</span>)
+
+<span class="cm"># → Materia: Cultura Digital</span></pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- Java -->
+    <div class="lang-card">
+      <div class="lc-head lc-java">
+        <img class="lc-bg" src="https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=400&q=60" alt=""/>
+        <div class="lc-logo">
+          <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/java/java-original.svg" alt="Java"/>
+          <span class="lang-name">Java</span>
+        </div>
+      </div>
+      <div class="lc-body">
+        <span class="lc-tag">Multiplataforma · Empresarial</span>
+        <p class="lc-desc">Java sigue el principio "escribe una vez, corre en cualquier lugar". Es base de Android y de grandes sistemas empresariales en bancos y corporaciones.</p>
+        <div class="code-block">
+          <div class="code-bar">
+            <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+            <span>Main.java</span>
+          </div>
+          <pre><span class="kw">public class</span> <span class="fn">Main</span> {
+  <span class="kw">public static void</span> <span class="fn">main</span>(
+      String[] args) {
+
+    String nombre = <span class="str">"Emilia"</span>;
+    <span class="fn">System.out.println</span>(
+      <span class="str">"Hola, "</span> + nombre
+    );
+    <span class="cm">// → Hola, Emilia</span>
+  }
+}</pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- C# -->
+    <div class="lang-card">
+      <div class="lc-head lc-cs">
+        <img class="lc-bg" src="https://images.unsplash.com/photo-1619410283995-43d9134e7656?w=400&q=60" alt=""/>
+        <div class="lc-logo">
+          <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/csharp/csharp-original.svg" alt="C#"/>
+          <span class="lang-name">C#</span>
+        </div>
+      </div>
+      <div class="lc-body">
+        <span class="lc-tag">Microsoft · Videojuegos · Windows</span>
+        <p class="lc-desc">C# (C Sharp) es el lenguaje de Microsoft. Se usa para crear apps de Windows, videojuegos con Unity y servicios en la nube con .NET.</p>
+        <div class="code-block">
+          <div class="code-bar">
+            <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+            <span>Program.cs</span>
+          </div>
+          <pre><span class="kw">using</span> System;
+
+<span class="kw">class</span> <span class="fn">Program</span> {
+  <span class="kw">static void</span> <span class="fn">Main</span>() {
+    <span class="kw">string</span> nombre = <span class="str">"Emilia"</span>;
+    Console.<span class="fn">WriteLine</span>(
+      <span class="str">$"Hola, {nombre}!"</span>
+    );
+    <span class="cm">// → Hola, Emilia!</span>
+  }
+}</pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- C++ -->
+    <div class="lang-card">
+      <div class="lc-head lc-cpp">
+        <img class="lc-bg" src="https://images.unsplash.com/photo-1580927752452-89d86da3fa0a?w=400&q=60" alt=""/>
+        <div class="lc-logo">
+          <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/cplusplus/cplusplus-original.svg" alt="C++"/>
+          <span class="lang-name">C++</span>
+        </div>
+      </div>
+      <div class="lc-body">
+        <span class="lc-tag">Alto Rendimiento · Sistemas</span>
+        <p class="lc-desc">C++ es el lenguaje de los motores de videojuegos, sistemas operativos y software de alto rendimiento. Es potente pero exige mayor precisión del programador.</p>
+        <div class="code-block">
+          <div class="code-bar">
+            <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+            <span>main.cpp</span>
+          </div>
+          <pre><span class="tg">#include</span> <span class="str">&lt;iostream&gt;</span>
+<span class="kw">using namespace</span> std;
+
+<span class="kw">int</span> <span class="fn">main</span>() {
+  <span class="kw">string</span> nombre = <span class="str">"Emilia"</span>;
+  cout &lt;&lt; <span class="str">"Hola, "</span>
+       &lt;&lt; nombre &lt;&lt; endl;
+  <span class="cm">// → Hola, Emilia</span>
+  <span class="kw">return</span> <span class="nm">0</span>;
+}</pre>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /lang-grid desk -->
+
+  <div class="divider"><span>✦</span></div>
+
+  <!-- ══ SECCIÓN 3: DISEÑO ══ -->
+  <div class="cat-header">
+    <div class="cat-icon dis">🎨</div>
+    <div>
+      <h2>Diseño y Maquetación</h2>
+      <p>Lenguajes y herramientas para crear interfaces, gráficos y documentos</p>
+    </div>
+  </div>
+
+  <div class="lang-grid">
+
+    <!-- HTML como maquetación -->
+    <div class="lang-card">
+      <div class="lc-head" style="background: linear-gradient(135deg,#ff7043,#ff8a65);">
+        <img class="lc-bg" src="https://images.unsplash.com/photo-1561736778-92e52a7769ef?w=400&q=60" alt=""/>
+        <div class="lc-logo">
+          <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/html5/html5-original.svg" alt="HTML"/>
+          <span class="lang-name">HTML + CSS (maquetación)</span>
+        </div>
+      </div>
+      <div class="lc-body">
+        <span class="lc-tag">Maquetación Web</span>
+        <p class="lc-desc">Combinados, HTML y CSS son la herramienta de maquetación web por excelencia. Con Flexbox y Grid se crean layouts complejos y responsivos de forma elegante.</p>
+        <div class="code-block">
+          <div class="code-bar">
+            <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+            <span>layout.css</span>
+          </div>
+          <pre><span class="cm">/* Layout con Grid */</span>
+<span class="sel">.contenedor</span> {
+  <span class="pr">display</span>: <span class="vl">grid</span>;
+  <span class="pr">grid-template-columns</span>:
+    <span class="fn">repeat</span>(<span class="nm">3</span>, <span class="nm">1fr</span>);
+  <span class="pr">gap</span>: <span class="nm">20px</span>;
+}
+<span class="sel">.card</span> {
+  <span class="pr">background</span>: <span class="vl">white</span>;
+  <span class="pr">border-radius</span>: <span class="nm">12px</span>;
+  <span class="pr">padding</span>: <span class="nm">16px</span>;
+}</pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- SVG -->
+    <div class="lang-card">
+      <div class="lc-head" style="background: linear-gradient(135deg,#26a69a,#00897b);">
+        <img class="lc-bg" src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&q=60" alt=""/>
+        <div class="lc-logo">
+          <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/svg/svg-original.svg" alt="SVG"/>
+          <span class="lang-name">SVG</span>
+        </div>
+      </div>
+      <div class="lc-body">
+        <span class="lc-tag">Gráficos Vectoriales</span>
+        <p class="lc-desc">SVG (Scalable Vector Graphics) es un lenguaje basado en XML para crear gráficos vectoriales escalables. Se usa en íconos, ilustraciones e infografías en la web.</p>
+        <div class="code-block">
+          <div class="code-bar">
+            <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+            <span>grafico.svg</span>
+          </div>
+          <pre><span class="cm">&lt;!-- Círculo y texto --&gt;</span>
+<span class="tg">&lt;svg</span> <span class="at">viewBox=</span><span class="str">"0 0 100 100"</span>
+  <span class="at">xmlns=</span><span class="str">"http://www.w3.org/2000/svg"</span><span class="tg">&gt;</span>
+
+  <span class="tg">&lt;circle</span> <span class="at">cx=</span><span class="str">"50"</span> <span class="at">cy=</span><span class="str">"45"</span>
+    <span class="at">r=</span><span class="str">"30"</span> <span class="at">fill=</span><span class="str">"#e91e8c"</span><span class="tg">/&gt;</span>
+
+  <span class="tg">&lt;text</span> <span class="at">x=</span><span class="str">"50"</span> <span class="at">y=</span><span class="str">"85"</span>
+    <span class="at">text-anchor=</span><span class="str">"middle"</span>
+    <span class="at">fill=</span><span class="str">"#880e4f"</span><span class="tg">&gt;</span>
+    Diseño
+  <span class="tg">&lt;/text&gt;</span>
+<span class="tg">&lt;/svg&gt;</span></pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- Markdown -->
+    <div class="lang-card">
+      <div class="lc-head" style="background: linear-gradient(135deg,#455a64,#607d8b);">
+        <img class="lc-bg" src="https://images.unsplash.com/photo-1455390582262-044cdead277a?w=400&q=60" alt=""/>
+        <div class="lc-logo">
+          <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/markdown/markdown-original.svg" alt="Markdown"/>
+          <span class="lang-name">Markdown</span>
+        </div>
+      </div>
+      <div class="lc-body">
+        <span class="lc-tag">Documentación · Texto</span>
+        <p class="lc-desc">Markdown es un lenguaje de marcado ligero para escribir documentos con formato usando solo texto plano. Se usa en README de GitHub, blogs y documentación técnica.</p>
+        <div class="code-block">
+          <div class="code-bar">
+            <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+            <span>README.md</span>
+          </div>
+          <pre><span class="tg"># Cultura Digital 2</span>
+
+<span class="kw">## Especialidad</span>
+Inteligencia Artificial
+
+<span class="str">**Alumna:**</span> Emilia K
+<span class="str">*Docente:*</span> Jordy Chirino
+
+<span class="cm">- Tarea 01: Tim Berners-Lee</span>
+<span class="cm">- Tarea 02: Lenguajes</span>
+<span class="cm">- Tarea 03: ...</span></pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- Figma / diseño UI -->
+    <div class="lang-card">
+      <div class="lc-head lc-figma">
+        <img class="lc-bg" src="https://images.unsplash.com/photo-1608456378082-de551e8a71fa?w=400&q=60" alt=""/>
+        <div class="lc-logo">
+          <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/figma/figma-original.svg" alt="Figma"/>
+          <span class="lang-name">Figma / UI Design</span>
+        </div>
+      </div>
+      <div class="lc-body">
+        <span class="lc-tag">Diseño de Interfaces · Prototipado</span>
+        <p class="lc-desc">Figma no es un lenguaje en sí, pero es la herramienta de diseño UI/UX más usada del mundo. Permite crear prototipos, sistemas de diseño y colaborar en tiempo real.</p>
+        <div class="code-block">
+          <div class="code-bar">
+            <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+            <span>tokens.json (Design Tokens)</span>
+          </div>
+          <pre><span class="cm">// Design Tokens en Figma</span>
+{
+  <span class="str">"color"</span>: {
+    <span class="str">"primary"</span>: <span class="vl">"#e91e8c"</span>,
+    <span class="str">"fondo"</span>:   <span class="vl">"#f5f0e8"</span>,
+    <span class="str">"texto"</span>:   <span class="vl">"#1a1a1a"</span>
+  },
+  <span class="str">"spacing"</span>: {
+    <span class="str">"sm"</span>: <span class="nm">8</span>,
+    <span class="str">"md"</span>: <span class="nm">16</span>,
+    <span class="str">"lg"</span>: <span class="nm">32</span>
+  }
+}</pre>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /lang-grid diseño -->
+
+  <div class="divider"><span>✦</span></div>
+
+  <!-- Conclusión -->
+  <div style="background:white; border-radius:16px; padding:32px 36px; box-shadow:0 4px 18px rgba(233,30,140,0.08); border-top: 4px solid var(--rosa-acento);">
+    <p style="font-size:0.72rem; font-weight:700; letter-spacing:0.22em; text-transform:uppercase; color:var(--rosa-acento); margin-bottom:8px;">Reflexión final</p>
+    <h2 style="font-family:'Playfair Display',serif; font-size:1.45rem; color:var(--vino); margin-bottom:14px;">¿Cuál debo aprender?</h2>
+    <p style="font-size:0.95rem; line-height:1.8; color:#444; margin-bottom:12px;">No existe un único lenguaje "mejor". La elección depende del objetivo: si quieres crear sitios web, empieza con HTML, CSS y JavaScript. Si te interesa la Inteligencia Artificial, Python es el camino. Si sueñas con videojuegos, explora C++ o C#.</p>
+    <p style="font-size:0.95rem; line-height:1.8; color:#444;">En el contexto de <strong>Cultura Digital</strong>, entender la diversidad de lenguajes nos da una visión más completa del ecosistema tecnológico y nos prepara para ser ciudadanos digitales más críticos y creativos.</p>
+  </div>
+
+</div><!-- /content -->
+
+<!-- FOOTER -->
+<footer>
+  <p class="footer-school">Centro de Bachillerato Tecnológico Industrial y de Servicios 144</p>
+  <div class="footer-divider"></div>
+  <p class="footer-info">Especialidad: Inteligencia Artificial &nbsp;|&nbsp; Emilia Kristel Oseguera Villanueva</p>
+  <p class="footer-info" style="margin-top:6px; opacity:0.75;">Docente: Jordy Chirino Balcazar</p>
+</footer>
+
+</body>
+</html>

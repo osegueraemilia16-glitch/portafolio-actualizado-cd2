@@ -1,0 +1,1096 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Tarea 07 – Componentes de Arduino</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Lato:wght@300;400;700&family=Share+Tech+Mono&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --verde:      #00979d;
+      --verde-osc:  #006b6e;
+      --verde-claro:#e0f7fa;
+      --acento:     #00e5ff;
+      --rosa:       #e91e8c;
+      --bg:         #0d1117;
+      --bg2:        #161b22;
+      --bg3:        #21262d;
+      --texto:      #e6edf3;
+      --texto-suave:#8b949e;
+      --borde:      #30363d;
+    }
+
+    * { margin:0; padding:0; box-sizing:border-box; }
+
+    body {
+      font-family: 'Lato', sans-serif;
+      background: var(--bg);
+      color: var(--texto);
+      min-height: 100vh;
+    }
+
+    /* ── HEADER ── */
+    header {
+      background: linear-gradient(135deg, #0d1117 0%, #006b6e55 50%, #0d1117 100%);
+      border-bottom: 1px solid var(--verde);
+      padding: 50px 30px 40px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    header::before {
+      content:'';
+      position:absolute; inset:0;
+      background: radial-gradient(ellipse at 50% 0%, rgba(0,151,157,0.18) 0%, transparent 70%);
+      pointer-events:none;
+    }
+
+    .back-btn {
+      position: absolute;
+      top: 20px; left: 20px;
+      display: flex; align-items: center; gap: 6px;
+      text-decoration: none;
+      color: var(--acento);
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.85rem;
+      border: 1px solid var(--acento);
+      padding: 6px 14px;
+      border-radius: 4px;
+      transition: background 0.2s;
+    }
+    .back-btn:hover { background: rgba(0,229,255,0.1); }
+
+    .tag-header {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--acento);
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+    h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2rem, 6vw, 3.5rem);
+      font-weight: 900;
+      color: #fff;
+      line-height: 1.1;
+      margin-bottom: 12px;
+    }
+    h1 span { color: var(--verde); }
+    .subtitle {
+      font-family: 'Lato', sans-serif;
+      font-size: 1rem;
+      color: var(--texto-suave);
+      max-width: 560px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+
+    /* ── MAIN CONTENT ── */
+    main {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 50px 24px 80px;
+    }
+
+    /* ── SECCIÓN TITLE ── */
+    .section-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.6rem;
+      color: var(--verde);
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .section-title::after {
+      content:'';
+      flex:1;
+      height:1px;
+      background: linear-gradient(to right, var(--verde), transparent);
+    }
+    .section-desc {
+      color: var(--texto-suave);
+      font-size: 0.9rem;
+      margin-bottom: 30px;
+    }
+
+    /* ── PLACA ARDUINO HERO ── */
+    .hero-board {
+      background: var(--bg2);
+      border: 1px solid var(--borde);
+      border-radius: 16px;
+      padding: 30px;
+      margin-bottom: 60px;
+      display: flex;
+      align-items: center;
+      gap: 36px;
+      flex-wrap: wrap;
+    }
+    .hero-board svg { flex-shrink: 0; }
+    .hero-info h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.6rem;
+      color: #fff;
+      margin-bottom: 10px;
+    }
+    .hero-info p {
+      color: var(--texto-suave);
+      font-size: 0.92rem;
+      line-height: 1.65;
+      margin-bottom: 16px;
+    }
+    .specs-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 10px;
+    }
+    .spec-item {
+      background: var(--bg3);
+      border: 1px solid var(--borde);
+      border-radius: 8px;
+      padding: 10px 14px;
+    }
+    .spec-item .spec-label {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.65rem;
+      color: var(--acento);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 3px;
+    }
+    .spec-item .spec-val {
+      font-size: 0.88rem;
+      color: var(--texto);
+      font-weight: 700;
+    }
+
+    /* ── GRID DE COMPONENTES ── */
+    .components-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+      gap: 22px;
+      margin-bottom: 60px;
+    }
+
+    .comp-card {
+      background: var(--bg2);
+      border: 1px solid var(--borde);
+      border-radius: 12px;
+      overflow: hidden;
+      transition: transform 0.25s, border-color 0.25s, box-shadow 0.25s;
+    }
+    .comp-card:hover {
+      transform: translateY(-5px);
+      border-color: var(--verde);
+      box-shadow: 0 8px 28px rgba(0,151,157,0.18);
+    }
+
+    .comp-img {
+      width:100%;
+      height: 170px;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--bg3);
+      border-bottom: 2px solid var(--borde);
+    }
+    .comp-img img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    /* fallback SVG si imagen no carga */
+    .comp-img svg { width:100%; height:100%; }
+
+    .comp-body { padding: 16px 18px 20px; }
+
+    .comp-category {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.65rem;
+      color: var(--acento);
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      margin-bottom: 6px;
+    }
+    .comp-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 8px;
+    }
+    .comp-desc {
+      font-size: 0.83rem;
+      color: var(--texto-suave);
+      line-height: 1.55;
+      margin-bottom: 12px;
+    }
+    .comp-pins {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .pin-tag {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.68rem;
+      background: rgba(0,151,157,0.15);
+      border: 1px solid rgba(0,151,157,0.4);
+      color: var(--verde);
+      padding: 3px 8px;
+      border-radius: 4px;
+    }
+
+    /* ── TABLA PINES ── */
+    .table-section { margin-bottom: 60px; }
+    .pin-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+      background: var(--bg2);
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid var(--borde);
+    }
+    .pin-table thead {
+      background: var(--verde);
+      color: #fff;
+    }
+    .pin-table th {
+      padding: 12px 16px;
+      text-align: left;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.78rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .pin-table td {
+      padding: 10px 16px;
+      border-bottom: 1px solid var(--borde);
+      color: var(--texto-suave);
+    }
+    .pin-table td:first-child { color: var(--acento); font-family:'Share Tech Mono',monospace; }
+    .pin-table tr:hover td { background: rgba(0,151,157,0.06); }
+    .pin-table tr:last-child td { border-bottom: none; }
+
+    /* ── DIAGRAMA CONEXIÓN ── */
+    .diagram-section { margin-bottom: 60px; }
+    .diagram-box {
+      background: var(--bg2);
+      border: 1px solid var(--borde);
+      border-radius: 12px;
+      padding: 30px;
+      overflow-x: auto;
+    }
+
+    /* ── GLOSARIO ── */
+    .glossary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 14px;
+      margin-bottom: 60px;
+    }
+    .glos-item {
+      background: var(--bg2);
+      border: 1px solid var(--borde);
+      border-left: 3px solid var(--verde);
+      border-radius: 8px;
+      padding: 14px 16px;
+    }
+    .glos-term {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.85rem;
+      color: var(--acento);
+      margin-bottom: 5px;
+    }
+    .glos-def {
+      font-size: 0.8rem;
+      color: var(--texto-suave);
+      line-height: 1.5;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      background: linear-gradient(90deg, #006b6e 0%, #00979d 100%);
+      color: #e0f7fa;
+      text-align: center;
+      padding: 30px 20px;
+      font-family: 'Lato', sans-serif;
+      font-size: 0.88rem;
+    }
+    footer strong { color: #fff; }
+
+    /* responsive */
+    @media(max-width:600px) {
+      .hero-board { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ════════ HEADER ════════ -->
+<header>
+  <a href="index (2).html" class="back-btn">← Portafolio</a>
+  <p class="tag-header">⚡ Tarea 07 · Cultura Digital 2</p>
+  <h1>Componentes de <span>Arduino</span></h1>
+  <p class="subtitle">Sensores, actuadores, módulos y hardware compatible. Todo lo que necesitas para comenzar en el mundo de la electrónica y la programación física.</p>
+</header>
+
+<!-- ════════ MAIN ════════ -->
+<main>
+
+  <!-- ── PLACA ARDUINO UNO ── -->
+  <div class="hero-board">
+    <!-- Ilustración SVG detallada Arduino UNO -->
+    <svg viewBox="0 0 320 220" xmlns="http://www.w3.org/2000/svg" width="320" height="220">
+      <!-- Placa verde -->
+      <rect x="30" y="10" width="260" height="200" rx="10" fill="#00979d" stroke="#005f62" stroke-width="2"/>
+      <!-- Serigrafía texto -->
+      <text x="150" y="170" font-family="Arial" font-size="8" fill="#005f62" text-anchor="middle" font-weight="bold" opacity="0.6">Arduino UNO R3</text>
+      <text x="150" y="180" font-family="Arial" font-size="5" fill="#005f62" text-anchor="middle" opacity="0.5">∞ arduino.cc</text>
+
+      <!-- Puerto USB tipo B -->
+      <rect x="10" y="60" width="26" height="35" rx="3" fill="#aaa" stroke="#777" stroke-width="1"/>
+      <rect x="14" y="64" width="18" height="27" rx="2" fill="#555"/>
+      <text x="23" y="105" font-family="Arial" font-size="5" fill="#e0f7fa" text-anchor="middle">USB</text>
+
+      <!-- Jack DC -->
+      <rect x="10" y="110" width="24" height="22" rx="3" fill="#555" stroke="#333" stroke-width="1"/>
+      <circle cx="22" cy="121" r="6" fill="#222"/>
+      <circle cx="22" cy="121" r="3" fill="#111"/>
+      <text x="22" y="143" font-family="Arial" font-size="5" fill="#e0f7fa" text-anchor="middle">DC</text>
+
+      <!-- Chip ATmega328P -->
+      <rect x="130" y="80" width="70" height="50" rx="4" fill="#111" stroke="#333" stroke-width="1"/>
+      <!-- patas chip -->
+      <line x1="130" y1="87" x2="122" y2="87" stroke="#ccc" stroke-width="1.5"/>
+      <line x1="130" y1="93" x2="122" y2="93" stroke="#ccc" stroke-width="1.5"/>
+      <line x1="130" y1="99" x2="122" y2="99" stroke="#ccc" stroke-width="1.5"/>
+      <line x1="130" y1="105" x2="122" y2="105" stroke="#ccc" stroke-width="1.5"/>
+      <line x1="130" y1="111" x2="122" y2="111" stroke="#ccc" stroke-width="1.5"/>
+      <line x1="130" y1="117" x2="122" y2="117" stroke="#ccc" stroke-width="1.5"/>
+      <line x1="130" y1="123" x2="122" y2="123" stroke="#ccc" stroke-width="1.5"/>
+      <line x1="200" y1="87" x2="208" y2="87" stroke="#ccc" stroke-width="1.5"/>
+      <line x1="200" y1="93" x2="208" y2="93" stroke="#ccc" stroke-width="1.5"/>
+      <line x1="200" y1="99" x2="208" y2="99" stroke="#ccc" stroke-width="1.5"/>
+      <line x1="200" y1="105" x2="208" y2="105" stroke="#ccc" stroke-width="1.5"/>
+      <line x1="200" y1="111" x2="208" y2="111" stroke="#ccc" stroke-width="1.5"/>
+      <line x1="200" y1="117" x2="208" y2="117" stroke="#ccc" stroke-width="1.5"/>
+      <line x1="200" y1="123" x2="208" y2="123" stroke="#ccc" stroke-width="1.5"/>
+      <text x="165" y="100" font-family="monospace" font-size="6" fill="#00ff88" text-anchor="middle">ATmega</text>
+      <text x="165" y="109" font-family="monospace" font-size="6" fill="#00ff88" text-anchor="middle">328P-PU</text>
+      <circle cx="133" cy="82" r="3" fill="#333"/>
+
+      <!-- Cristal oscilador -->
+      <rect x="215" y="88" width="22" height="14" rx="3" fill="#c8a000" stroke="#a07000" stroke-width="1"/>
+      <text x="226" y="108" font-family="Arial" font-size="4.5" fill="#e0f7fa" text-anchor="middle">16 MHz</text>
+
+      <!-- Chip 16U2 -->
+      <rect x="60" y="62" width="30" height="22" rx="3" fill="#1a1a1a" stroke="#333" stroke-width="1"/>
+      <text x="75" y="72" font-family="monospace" font-size="4" fill="#00ff88" text-anchor="middle">ATmega</text>
+      <text x="75" y="79" font-family="monospace" font-size="4" fill="#00ff88" text-anchor="middle">16U2</text>
+
+      <!-- Regulador de voltaje -->
+      <rect x="240" y="150" width="20" height="30" rx="3" fill="#333" stroke="#555" stroke-width="1"/>
+      <text x="250" y="145" font-family="Arial" font-size="4.5" fill="#e0f7fa" text-anchor="middle">7805</text>
+
+      <!-- LEDs -->
+      <circle cx="250" cy="55" r="5" fill="#00ff44" opacity="0.95"/>
+      <circle cx="263" cy="55" r="5" fill="#ff8800" opacity="0.95"/>
+      <circle cx="276" cy="55" r="5" fill="#ffee00" opacity="0.9"/>
+      <text x="250" y="48" font-family="Arial" font-size="4" fill="#e0f7fa" text-anchor="middle">PWR</text>
+      <text x="263" y="48" font-family="Arial" font-size="4" fill="#e0f7fa" text-anchor="middle">TX</text>
+      <text x="276" y="48" font-family="Arial" font-size="4" fill="#e0f7fa" text-anchor="middle">RX</text>
+
+      <!-- Botón RESET -->
+      <rect x="57" y="153" width="18" height="18" rx="9" fill="#eee" stroke="#aaa" stroke-width="1.5"/>
+      <circle cx="66" cy="162" r="5" fill="#ccc"/>
+      <text x="66" y="182" font-family="Arial" font-size="4.5" fill="#e0f7fa" text-anchor="middle">RESET</text>
+
+      <!-- Pines digitales superiores (0-13) -->
+      <rect x="78" y="11" width="160" height="8" rx="2" fill="#111"/>
+      <text x="158" y="8" font-family="Arial" font-size="4.5" fill="#e0f7fa" text-anchor="middle">PINES DIGITALES (0–13)</text>
+      <!-- pins -->
+      <rect x="82"  y="10" width="5" height="10" rx="1" fill="#888"/>
+      <rect x="90"  y="10" width="5" height="10" rx="1" fill="#888"/>
+      <rect x="98"  y="10" width="5" height="10" rx="1" fill="#888"/>
+      <rect x="106" y="10" width="5" height="10" rx="1" fill="#888"/>
+      <rect x="114" y="10" width="5" height="10" rx="1" fill="#888"/>
+      <rect x="122" y="10" width="5" height="10" rx="1" fill="#888"/>
+      <rect x="130" y="10" width="5" height="10" rx="1" fill="#888"/>
+      <rect x="138" y="10" width="5" height="10" rx="1" fill="#888"/>
+      <rect x="146" y="10" width="5" height="10" rx="1" fill="#888"/>
+      <rect x="154" y="10" width="5" height="10" rx="1" fill="#888"/>
+      <rect x="162" y="10" width="5" height="10" rx="1" fill="#888"/>
+      <rect x="170" y="10" width="5" height="10" rx="1" fill="#888"/>
+      <rect x="178" y="10" width="5" height="10" rx="1" fill="#888"/>
+      <rect x="186" y="10" width="5" height="10" rx="1" fill="#888"/>
+
+      <!-- Pines analógicos inferiores (A0-A5) -->
+      <rect x="78" y="201" width="90" height="8" rx="2" fill="#111"/>
+      <text x="123" y="215" font-family="Arial" font-size="4.5" fill="#e0f7fa" text-anchor="middle">PINES ANALÓGICOS (A0–A5)</text>
+      <rect x="82"  y="200" width="5" height="10" rx="1" fill="#888"/>
+      <rect x="90"  y="200" width="5" height="10" rx="1" fill="#888"/>
+      <rect x="98"  y="200" width="5" height="10" rx="1" fill="#888"/>
+      <rect x="106" y="200" width="5" height="10" rx="1" fill="#888"/>
+      <rect x="114" y="200" width="5" height="10" rx="1" fill="#888"/>
+      <rect x="122" y="200" width="5" height="10" rx="1" fill="#888"/>
+
+      <!-- Pines de alimentación -->
+      <rect x="196" y="200" width="70" height="8" rx="2" fill="#111"/>
+      <text x="231" y="215" font-family="Arial" font-size="4.5" fill="#e0f7fa" text-anchor="middle">ALIMENTACIÓN</text>
+      <rect x="200" y="200" width="5" height="10" rx="1" fill="#f44"/>
+      <rect x="208" y="200" width="5" height="10" rx="1" fill="#888"/>
+      <rect x="216" y="200" width="5" height="10" rx="1" fill="#888"/>
+      <rect x="224" y="200" width="5" height="10" rx="1" fill="#44f"/>
+      <rect x="232" y="200" width="5" height="10" rx="1" fill="#44f"/>
+      <rect x="240" y="200" width="5" height="10" rx="1" fill="#888"/>
+    </svg>
+
+    <div class="hero-info">
+      <h2>Arduino UNO R3</h2>
+      <p>La placa Arduino UNO es la más popular para aprender electrónica y programación. Está basada en el microcontrolador ATmega328P y cuenta con entradas/salidas digitales y analógicas que permiten conectar sensores, actuadores y módulos de comunicación.</p>
+      <div class="specs-grid">
+        <div class="spec-item">
+          <div class="spec-label">Microcontrolador</div>
+          <div class="spec-val">ATmega328P</div>
+        </div>
+        <div class="spec-item">
+          <div class="spec-label">Voltaje operación</div>
+          <div class="spec-val">5V</div>
+        </div>
+        <div class="spec-item">
+          <div class="spec-label">Pines Digitales</div>
+          <div class="spec-val">14 (6 PWM)</div>
+        </div>
+        <div class="spec-item">
+          <div class="spec-label">Pines Analógicos</div>
+          <div class="spec-val">6 (A0–A5)</div>
+        </div>
+        <div class="spec-item">
+          <div class="spec-label">Velocidad reloj</div>
+          <div class="spec-val">16 MHz</div>
+        </div>
+        <div class="spec-item">
+          <div class="spec-label">Memoria Flash</div>
+          <div class="spec-val">32 KB</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SENSORES ── -->
+  <h2 class="section-title">Sensores</h2>
+  <p class="section-desc">Los sensores capturan información del entorno y la envían al Arduino para su procesamiento.</p>
+  <div class="components-grid">
+
+    <!-- HC-SR04 Ultrasónico -->
+    <div class="comp-card">
+      <div class="comp-img">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/98/HC-SR04_Ultrasonic_sensor_1480322_3_4_HDR_Enhancer.jpg/320px-HC-SR04_Ultrasonic_sensor_1480322_3_4_HDR_Enhancer.jpg"
+             alt="Sensor ultrasónico HC-SR04"
+             onerror="this.style.display='none'; this.nextElementSibling.style.display='block'">
+        <svg style="display:none" viewBox="0 0 300 170" xmlns="http://www.w3.org/2000/svg">
+          <rect width="300" height="170" fill="#1e2a3a"/>
+          <rect x="50" y="40" width="200" height="90" rx="6" fill="#0d3b5e" stroke="#00979d" stroke-width="2"/>
+          <circle cx="100" cy="85" r="28" fill="#1a5276" stroke="#00979d" stroke-width="2"/>
+          <circle cx="100" cy="85" r="18" fill="#0e3a52" stroke="#00e5ff" stroke-width="1"/>
+          <circle cx="100" cy="85" r="8" fill="#006b9e"/>
+          <circle cx="200" cy="85" r="28" fill="#1a5276" stroke="#00979d" stroke-width="2"/>
+          <circle cx="200" cy="85" r="18" fill="#0e3a52" stroke="#00e5ff" stroke-width="1"/>
+          <circle cx="200" cy="85" r="8" fill="#006b9e"/>
+          <text x="150" y="148" font-family="monospace" font-size="10" fill="#00e5ff" text-anchor="middle">HC-SR04</text>
+          <!-- ondas -->
+          <path d="M240,55 Q275,85 240,115" fill="none" stroke="#00e5ff" stroke-width="1.5" opacity="0.5"/>
+          <path d="M250,60 Q290,85 250,110" fill="none" stroke="#00e5ff" stroke-width="1" opacity="0.3"/>
+        </svg>
+      </div>
+      <div class="comp-body">
+        <div class="comp-category">Sensor · Distancia</div>
+        <div class="comp-name">HC-SR04 – Ultrasónico</div>
+        <p class="comp-desc">Mide distancias entre 2 cm y 4 m usando ondas ultrasónicas. Ideal para robots evasores de obstáculos y sistemas de estacionamiento.</p>
+        <div class="comp-pins">
+          <span class="pin-tag">VCC 5V</span>
+          <span class="pin-tag">Trig</span>
+          <span class="pin-tag">Echo</span>
+          <span class="pin-tag">GND</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- DHT11 Temperatura y humedad -->
+    <div class="comp-card">
+      <div class="comp-img">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d8/DHT11-edited.jpg/320px-DHT11-edited.jpg"
+             alt="Sensor DHT11"
+             onerror="this.style.display='none'; this.nextElementSibling.style.display='block'">
+        <svg style="display:none" viewBox="0 0 300 170" xmlns="http://www.w3.org/2000/svg">
+          <rect width="300" height="170" fill="#1e2a1e"/>
+          <rect x="90" y="30" width="120" height="90" rx="6" fill="#1e4d2b" stroke="#00979d" stroke-width="2"/>
+          <rect x="100" y="40" width="100" height="70" rx="4" fill="#0d3b1e"/>
+          <text x="150" y="80" font-family="monospace" font-size="9" fill="#00ff88" text-anchor="middle">DHT11</text>
+          <text x="150" y="92" font-family="monospace" font-size="7" fill="#00e5ff" text-anchor="middle">TEMP/HUMI</text>
+          <!-- pines -->
+          <rect x="108" y="120" width="6" height="20" rx="1" fill="#aaa"/>
+          <rect x="120" y="120" width="6" height="20" rx="1" fill="#aaa"/>
+          <rect x="132" y="120" width="6" height="20" rx="1" fill="#aaa"/>
+          <rect x="144" y="120" width="6" height="20" rx="1" fill="#aaa"/>
+          <text x="150" y="155" font-family="monospace" font-size="9" fill="#00e5ff" text-anchor="middle">DHT11</text>
+        </svg>
+      </div>
+      <div class="comp-body">
+        <div class="comp-category">Sensor · Temperatura / Humedad</div>
+        <div class="comp-name">DHT11</div>
+        <p class="comp-desc">Sensor digital que mide temperatura (0–50°C) y humedad relativa (20–90%). Perfecto para estaciones meteorológicas y sistemas de climatización.</p>
+        <div class="comp-pins">
+          <span class="pin-tag">VCC 3.3–5V</span>
+          <span class="pin-tag">DATA</span>
+          <span class="pin-tag">GND</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- PIR de movimiento -->
+    <div class="comp-card">
+      <div class="comp-img">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/PIR_Sensor.jpg/320px-PIR_Sensor.jpg"
+             alt="Sensor PIR de movimiento"
+             onerror="this.style.display='none'; this.nextElementSibling.style.display='block'">
+        <svg style="display:none" viewBox="0 0 300 170" xmlns="http://www.w3.org/2000/svg">
+          <rect width="300" height="170" fill="#1a1a2e"/>
+          <rect x="80" y="35" width="140" height="100" rx="8" fill="#16213e" stroke="#00979d" stroke-width="2"/>
+          <circle cx="150" cy="80" r="35" fill="#0f3460" stroke="#00e5ff" stroke-width="1.5"/>
+          <circle cx="150" cy="80" r="22" fill="#e0e0e0" opacity="0.15"/>
+          <text x="150" y="145" font-family="monospace" font-size="9" fill="#00e5ff" text-anchor="middle">HC-SR501</text>
+        </svg>
+      </div>
+      <div class="comp-body">
+        <div class="comp-category">Sensor · Movimiento</div>
+        <div class="comp-name">HC-SR501 – PIR</div>
+        <p class="comp-desc">Detecta el movimiento de personas u objetos que emitan calor infrarrojo. Ampliamente usado en alarmas de seguridad y luces automáticas.</p>
+        <div class="comp-pins">
+          <span class="pin-tag">VCC 5–12V</span>
+          <span class="pin-tag">OUT Digital</span>
+          <span class="pin-tag">GND</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- LDR fotoresistencia -->
+    <div class="comp-card">
+      <div class="comp-img">
+        <svg viewBox="0 0 300 170" xmlns="http://www.w3.org/2000/svg">
+          <rect width="300" height="170" fill="#1a1500"/>
+          <!-- símbolo circuito LDR -->
+          <rect x="120" y="55" width="60" height="60" rx="30" fill="#2a1f00" stroke="#ffaa00" stroke-width="2"/>
+          <rect x="125" y="60" width="50" height="50" rx="25" fill="none" stroke="#ffcc00" stroke-width="1" stroke-dasharray="4,3"/>
+          <!-- flechas de luz -->
+          <line x1="80" y1="35" x2="108" y2="63" stroke="#ffee00" stroke-width="2"/>
+          <polygon points="108,63 95,55 103,50" fill="#ffee00"/>
+          <line x1="95" y1="28" x2="123" y2="56" stroke="#ffee00" stroke-width="2"/>
+          <polygon points="123,56 110,48 118,43" fill="#ffee00"/>
+          <circle cx="150" cy="85" r="16" fill="#ffaa00" opacity="0.3"/>
+          <circle cx="150" cy="85" r="8" fill="#ffcc00" opacity="0.5"/>
+          <!-- pines -->
+          <line x1="150" y1="115" x2="150" y2="140" stroke="#aaa" stroke-width="3"/>
+          <line x1="140" y1="55" x2="140" y2="30" stroke="#aaa" stroke-width="3"/>
+          <text x="150" y="158" font-family="monospace" font-size="9" fill="#ffaa00" text-anchor="middle">Fotorresistencia LDR</text>
+        </svg>
+      </div>
+      <div class="comp-body">
+        <div class="comp-category">Sensor · Luz</div>
+        <div class="comp-name">Fotorresistencia (LDR)</div>
+        <p class="comp-desc">Resistencia que varía su valor según la intensidad de la luz. Se usa en lámparas automáticas, alarmas de luz y sistemas de ahorro de energía.</p>
+        <div class="comp-pins">
+          <span class="pin-tag">Pin Analógico</span>
+          <span class="pin-tag">Divisor de tensión</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sensor de llama -->
+    <div class="comp-card">
+      <div class="comp-img">
+        <svg viewBox="0 0 300 170" xmlns="http://www.w3.org/2000/svg">
+          <rect width="300" height="170" fill="#1a0a00"/>
+          <!-- módulo PCB -->
+          <rect x="70" y="40" width="160" height="90" rx="6" fill="#0d2000" stroke="#ff4400" stroke-width="2"/>
+          <!-- Llama -->
+          <path d="M150,110 Q140,90 150,70 Q155,60 160,70 Q170,50 155,30 Q180,55 175,75 Q185,65 180,80 Q190,90 165,110 Z" fill="#ff6600" opacity="0.9"/>
+          <path d="M150,110 Q145,95 150,80 Q153,72 156,80 Q162,68 158,55 Q172,72 168,83 Q174,76 171,87 Q177,94 162,110 Z" fill="#ffaa00" opacity="0.8"/>
+          <path d="M152,110 Q149,100 152,92 Q154,87 156,92 Q159,84 157,78 Q163,87 161,93 Q164,89 163,95 Q166,100 158,110 Z" fill="#ffe000" opacity="0.7"/>
+          <text x="150" y="148" font-family="monospace" font-size="9" fill="#ff6600" text-anchor="middle">Sensor de Llama</text>
+        </svg>
+      </div>
+      <div class="comp-body">
+        <div class="comp-category">Sensor · Fuego</div>
+        <div class="comp-name">Sensor de Llama (IR)</div>
+        <p class="comp-desc">Detecta la presencia de fuego o llamas mediante radiación infrarroja. Usado en robots extintores, alarmas de incendio y sistemas de seguridad.</p>
+        <div class="comp-pins">
+          <span class="pin-tag">VCC 3.3–5V</span>
+          <span class="pin-tag">D0 Digital</span>
+          <span class="pin-tag">A0 Analógico</span>
+          <span class="pin-tag">GND</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sensor de gas MQ-2 -->
+    <div class="comp-card">
+      <div class="comp-img">
+        <svg viewBox="0 0 300 170" xmlns="http://www.w3.org/2000/svg">
+          <rect width="300" height="170" fill="#111111"/>
+          <!-- PCB -->
+          <rect x="65" y="35" width="170" height="100" rx="6" fill="#1a1a00" stroke="#ccaa00" stroke-width="2"/>
+          <!-- Cápsula sensor -->
+          <circle cx="150" cy="85" r="32" fill="#333" stroke="#aaa" stroke-width="2"/>
+          <circle cx="150" cy="85" r="24" fill="#222"/>
+          <!-- rejilla honeycomb -->
+          <circle cx="150" cy="85" r="18" fill="none" stroke="#888" stroke-width="1" stroke-dasharray="3,2"/>
+          <circle cx="150" cy="85" r="10" fill="#555"/>
+          <circle cx="150" cy="85" r="4" fill="#888"/>
+          <!-- puntos de soldadura -->
+          <circle cx="88" cy="125" r="5" fill="#ccaa00"/>
+          <circle cx="108" cy="125" r="5" fill="#ccaa00"/>
+          <circle cx="128" cy="125" r="5" fill="#ccaa00"/>
+          <circle cx="148" cy="125" r="5" fill="#ccaa00"/>
+          <text x="150" y="152" font-family="monospace" font-size="9" fill="#ccaa00" text-anchor="middle">MQ-2 · Gas / Humo</text>
+        </svg>
+      </div>
+      <div class="comp-body">
+        <div class="comp-category">Sensor · Gas</div>
+        <div class="comp-name">MQ-2 – Gas y Humo</div>
+        <p class="comp-desc">Detecta gases inflamables como GLP, propano, metano, hidrógeno y humo. Indispensable en detectores de fugas de gas doméstico.</p>
+        <div class="comp-pins">
+          <span class="pin-tag">VCC 5V</span>
+          <span class="pin-tag">D0 Digital</span>
+          <span class="pin-tag">A0 Analógico</span>
+          <span class="pin-tag">GND</span>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /components-grid sensores -->
+
+  <!-- ── ACTUADORES ── -->
+  <h2 class="section-title">Actuadores</h2>
+  <p class="section-desc">Los actuadores convierten las señales del Arduino en acciones físicas: movimiento, luz, sonido, calor.</p>
+  <div class="components-grid">
+
+    <!-- LED -->
+    <div class="comp-card">
+      <div class="comp-img">
+        <svg viewBox="0 0 300 170" xmlns="http://www.w3:org/2000/svg">
+          <rect width="300" height="170" fill="#0a0a1a"/>
+          <!-- LED dibujado -->
+          <!-- cuerpo -->
+          <path d="M130,60 L170,60 L170,100 Q150,120 130,100 Z" fill="#ff3333" stroke="#cc0000" stroke-width="2"/>
+          <ellipse cx="150" cy="60" rx="20" ry="8" fill="#ff6666" stroke="#cc0000" stroke-width="2"/>
+          <!-- brillo -->
+          <ellipse cx="145" cy="72" rx="5" ry="8" fill="rgba(255,255,255,0.25)" transform="rotate(-20 145 72)"/>
+          <!-- pines -->
+          <line x1="142" y1="117" x2="142" y2="148" stroke="#aaa" stroke-width="3"/>
+          <line x1="158" y1="117" x2="158" y2="148" stroke="#aaa" stroke-width="3"/>
+          <line x1="138" y1="148" x2="146" y2="148" stroke="#aaa" stroke-width="2"/>
+          <!-- rayos de luz -->
+          <line x1="180" y1="50" x2="200" y2="38" stroke="#ff8888" stroke-width="1.5" opacity="0.8"/>
+          <line x1="185" y1="65" x2="210" y2="60" stroke="#ff8888" stroke-width="1.5" opacity="0.7"/>
+          <line x1="180" y1="80" x2="205" y2="82" stroke="#ff8888" stroke-width="1.5" opacity="0.6"/>
+          <!-- halo -->
+          <circle cx="150" cy="82" r="50" fill="#ff0000" opacity="0.07"/>
+          <text x="150" y="162" font-family="monospace" font-size="9" fill="#ff6666" text-anchor="middle">LED</text>
+        </svg>
+      </div>
+      <div class="comp-body">
+        <div class="comp-category">Actuador · Luz</div>
+        <div class="comp-name">LED (Diodo Emisor de Luz)</div>
+        <p class="comp-desc">Componente básico que emite luz al pasar corriente. Existen en múltiples colores (rojo, verde, azul, amarillo) y en variante RGB para control de color.</p>
+        <div class="comp-pins">
+          <span class="pin-tag">Ánodo (+)</span>
+          <span class="pin-tag">Cátodo (–)</span>
+          <span class="pin-tag">Resistencia 220Ω</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Servo SG90 -->
+    <div class="comp-card">
+      <div class="comp-img">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/Servomotor.jpg/320px-Servomotor.jpg"
+             alt="Servomotor SG90"
+             onerror="this.style.display='none'; this.nextElementSibling.style.display='block'">
+        <svg style="display:none" viewBox="0 0 300 170" xmlns="http://www.w3.org/2000/svg">
+          <rect width="300" height="170" fill="#111122"/>
+          <rect x="80" y="40" width="100" height="90" rx="8" fill="#333" stroke="#555" stroke-width="2"/>
+          <rect x="86" y="46" width="88" height="78" rx="6" fill="#222"/>
+          <rect x="90" y="55" width="80" height="55" rx="4" fill="#2a2a2a"/>
+          <!-- rueda de servo -->
+          <circle cx="185" cy="85" r="28" fill="#444" stroke="#666" stroke-width="2"/>
+          <circle cx="185" cy="85" r="18" fill="#333"/>
+          <circle cx="185" cy="85" r="6" fill="#555"/>
+          <rect x="185" y="60" width="4" height="25" rx="2" fill="#888" transform="rotate(30 185 85)"/>
+          <!-- cables -->
+          <line x1="80" y1="95" x2="50" y2="95" stroke="#f44" stroke-width="3"/>
+          <line x1="80" y1="103" x2="50" y2="103" stroke="#f44" stroke-width="3"/>
+          <line x1="80" y1="111" x2="50" y2="111" stroke="#ff8" stroke-width="3"/>
+          <text x="150" y="155" font-family="monospace" font-size="9" fill="#aaa" text-anchor="middle">Servo SG90</text>
+        </svg>
+      </div>
+      <div class="comp-body">
+        <div class="comp-category">Actuador · Movimiento</div>
+        <div class="comp-name">Servomotor SG90</div>
+        <p class="comp-desc">Motor de posición que gira de 0° a 180° con precisión mediante señal PWM. Usado en brazos robóticos, drones, cámaras y mecanismos de dirección.</p>
+        <div class="comp-pins">
+          <span class="pin-tag">VCC (Rojo)</span>
+          <span class="pin-tag">GND (Marrón)</span>
+          <span class="pin-tag">Signal PWM (Naranja)</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Buzzer -->
+    <div class="comp-card">
+      <div class="comp-img">
+        <svg viewBox="0 0 300 170" xmlns="http://www.w3.org/2000/svg">
+          <rect width="300" height="170" fill="#0a0a0a"/>
+          <!-- Buzzer cilíndrico -->
+          <ellipse cx="150" cy="72" rx="44" ry="12" fill="#222" stroke="#555" stroke-width="2"/>
+          <rect x="106" y="72" width="88" height="50" fill="#1a1a1a" stroke="#555" stroke-width="2"/>
+          <ellipse cx="150" cy="122" rx="44" ry="12" fill="#111" stroke="#555" stroke-width="2"/>
+          <!-- agujero central -->
+          <circle cx="150" cy="95" r="15" fill="#333" stroke="#444" stroke-width="1"/>
+          <circle cx="150" cy="95" r="8" fill="#222"/>
+          <!-- símbolo + -->
+          <text x="140" y="85" font-family="monospace" font-size="10" fill="#f44">+</text>
+          <!-- ondas de sonido -->
+          <path d="M205,72 Q220,87 205,102" fill="none" stroke="#00e5ff" stroke-width="1.5" opacity="0.6"/>
+          <path d="M215,65 Q235,87 215,109" fill="none" stroke="#00e5ff" stroke-width="1" opacity="0.4"/>
+          <path d="M225,58 Q250,87 225,116" fill="none" stroke="#00e5ff" stroke-width="0.8" opacity="0.25"/>
+          <!-- pines -->
+          <line x1="136" y1="134" x2="136" y2="158" stroke="#aaa" stroke-width="3"/>
+          <line x1="164" y1="134" x2="164" y2="158" stroke="#aaa" stroke-width="3"/>
+          <text x="150" y="168" font-family="monospace" font-size="8" fill="#aaa" text-anchor="middle">Buzzer Piezoeléctrico</text>
+        </svg>
+      </div>
+      <div class="comp-body">
+        <div class="comp-category">Actuador · Sonido</div>
+        <div class="comp-name">Buzzer Piezoeléctrico</div>
+        <p class="comp-desc">Genera sonido al aplicar voltaje. Con Arduino y la función <code style="color:#00e5ff">tone()</code> puede producir melodías, alertas y efectos de sonido.</p>
+        <div class="comp-pins">
+          <span class="pin-tag">Pin Digital (PWM)</span>
+          <span class="pin-tag">GND</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Motor DC + L298N -->
+    <div class="comp-card">
+      <div class="comp-img">
+        <svg viewBox="0 0 300 170" xmlns="http://www.w3.org/2000/svg">
+          <rect width="300" height="170" fill="#0d1117"/>
+          <!-- Motor DC -->
+          <ellipse cx="90" cy="85" rx="45" ry="45" fill="#333" stroke="#555" stroke-width="2"/>
+          <ellipse cx="90" cy="85" rx="35" ry="35" fill="#1a1a1a"/>
+          <ellipse cx="90" cy="85" rx="20" ry="20" fill="#2a2a2a"/>
+          <line x1="90" y1="85" x2="130" y2="85" stroke="#888" stroke-width="4"/>
+          <!-- Driver L298N -->
+          <rect x="165" y="45" width="100" height="80" rx="6" fill="#1a1a00" stroke="#ccaa00" stroke-width="2"/>
+          <text x="215" y="88" font-family="monospace" font-size="8" fill="#ccaa00" text-anchor="middle">L298N</text>
+          <text x="215" y="99" font-family="monospace" font-size="6" fill="#aaa" text-anchor="middle">Motor Driver</text>
+          <!-- conexión -->
+          <line x1="130" y1="75" x2="165" y2="75" stroke="#00e5ff" stroke-width="1.5" stroke-dasharray="4,3"/>
+          <line x1="130" y1="95" x2="165" y2="95" stroke="#f44" stroke-width="1.5" stroke-dasharray="4,3"/>
+          <text x="150" y="155" font-family="monospace" font-size="8" fill="#aaa" text-anchor="middle">Motor DC + L298N</text>
+        </svg>
+      </div>
+      <div class="comp-body">
+        <div class="comp-category">Actuador · Motor</div>
+        <div class="comp-name">Motor DC + Driver L298N</div>
+        <p class="comp-desc">El motor DC convierte electricidad en movimiento rotatorio. El módulo L298N permite controlarlo desde Arduino (velocidad y dirección) con mayor corriente.</p>
+        <div class="comp-pins">
+          <span class="pin-tag">ENA / ENB</span>
+          <span class="pin-tag">IN1–IN4</span>
+          <span class="pin-tag">12V / GND</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── MÓDULOS DE COMUNICACIÓN ── -->
+  <h2 class="section-title">Módulos de Comunicación</h2>
+  <p class="section-desc">Permiten a Arduino conectarse con otros dispositivos, redes y el mundo digital.</p>
+  <div class="components-grid">
+
+    <!-- Bluetooth HC-05 -->
+    <div class="comp-card">
+      <div class="comp-img">
+        <svg viewBox="0 0 300 170" xmlns="http://www.w3.org/2000/svg">
+          <rect width="300" height="170" fill="#00001a"/>
+          <rect x="80" y="35" width="140" height="100" rx="6" fill="#001133" stroke="#0055ff" stroke-width="2"/>
+          <!-- símbolo Bluetooth -->
+          <path d="M150,52 L165,65 L150,78 L150,52 Z" fill="#0088ff" stroke="#0066cc" stroke-width="1"/>
+          <path d="M150,52 L135,65 L150,78" fill="none" stroke="#0088ff" stroke-width="2"/>
+          <path d="M150,78 L165,91 L150,104 L150,78 Z" fill="#0088ff" stroke="#0066cc" stroke-width="1"/>
+          <path d="M150,78 L135,91 L150,104" fill="none" stroke="#0088ff" stroke-width="2"/>
+          <!-- halo -->
+          <circle cx="150" cy="78" r="40" fill="none" stroke="#0055ff" stroke-width="0.5" opacity="0.4"/>
+          <circle cx="150" cy="78" r="50" fill="none" stroke="#0055ff" stroke-width="0.3" opacity="0.2"/>
+          <text x="150" y="148" font-family="monospace" font-size="9" fill="#4488ff" text-anchor="middle">HC-05 Bluetooth</text>
+        </svg>
+      </div>
+      <div class="comp-body">
+        <div class="comp-category">Módulo · Comunicación</div>
+        <div class="comp-name">HC-05 – Bluetooth</div>
+        <p class="comp-desc">Módulo Bluetooth clásico (2.4 GHz) para comunicación serial inalámbrica con smartphones o PC. Alcance de hasta 10 metros en modo maestro/esclavo.</p>
+        <div class="comp-pins">
+          <span class="pin-tag">VCC 5V</span>
+          <span class="pin-tag">TX / RX</span>
+          <span class="pin-tag">GND</span>
+          <span class="pin-tag">STATE / KEY</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- WiFi ESP8266 -->
+    <div class="comp-card">
+      <div class="comp-img">
+        <svg viewBox="0 0 300 170" xmlns="http://www.w3.org/2000/svg">
+          <rect width="300" height="170" fill="#001a00"/>
+          <rect x="70" y="35" width="160" height="100" rx="6" fill="#002200" stroke="#00aa44" stroke-width="2"/>
+          <!-- Ondas WiFi -->
+          <path d="M150,100 Q150,90 150,90" fill="none" stroke="#00ff88" stroke-width="2"/>
+          <path d="M135,90 Q150,75 165,90" fill="none" stroke="#00ff88" stroke-width="2" opacity="0.9"/>
+          <path d="M120,78 Q150,55 180,78" fill="none" stroke="#00ff88" stroke-width="2" opacity="0.7"/>
+          <path d="M105,66 Q150,35 195,66" fill="none" stroke="#00ff88" stroke-width="2" opacity="0.45"/>
+          <circle cx="150" cy="100" r="5" fill="#00ff88"/>
+          <text x="150" y="148" font-family="monospace" font-size="9" fill="#00ff88" text-anchor="middle">ESP8266 NodeMCU</text>
+        </svg>
+      </div>
+      <div class="comp-body">
+        <div class="comp-category">Módulo · WiFi / IoT</div>
+        <div class="comp-name">ESP8266 NodeMCU</div>
+        <p class="comp-desc">Módulo WiFi 802.11 b/g/n con microcontrolador propio. Permite conectar proyectos a internet de forma sencilla. Soporta protocolo MQTT y HTTP para IoT.</p>
+        <div class="comp-pins">
+          <span class="pin-tag">3.3V</span>
+          <span class="pin-tag">TX / RX</span>
+          <span class="pin-tag">GPIO x11</span>
+          <span class="pin-tag">GND</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- RFID RC522 -->
+    <div class="comp-card">
+      <div class="comp-img">
+        <svg viewBox="0 0 300 170" xmlns="http://www.w3.org/2000/svg">
+          <rect width="300" height="170" fill="#0a0010"/>
+          <rect x="65" y="35" width="170" height="100" rx="6" fill="#150025" stroke="#9900cc" stroke-width="2"/>
+          <!-- antena RFID circular -->
+          <rect x="90" y="50" width="75" height="70" rx="5" fill="none" stroke="#cc44ff" stroke-width="1.5"/>
+          <rect x="96" y="56" width="63" height="58" rx="4" fill="none" stroke="#cc44ff" stroke-width="1" opacity="0.6"/>
+          <rect x="102" y="62" width="51" height="46" rx="3" fill="none" stroke="#cc44ff" stroke-width="0.8" opacity="0.4"/>
+          <!-- chip IC -->
+          <rect x="185" y="60" width="35" height="50" rx="4" fill="#1a1a1a" stroke="#555" stroke-width="1"/>
+          <text x="202" y="80" font-family="monospace" font-size="5" fill="#cc88ff" text-anchor="middle">MFRC</text>
+          <text x="202" y="88" font-family="monospace" font-size="5" fill="#cc88ff" text-anchor="middle">522</text>
+          <text x="150" y="148" font-family="monospace" font-size="9" fill="#cc44ff" text-anchor="middle">RFID RC522</text>
+        </svg>
+      </div>
+      <div class="comp-body">
+        <div class="comp-category">Módulo · RFID</div>
+        <div class="comp-name">MFRC522 – Lector RFID</div>
+        <p class="comp-desc">Lee y escribe tarjetas y llaveros RFID de 13.56 MHz. Ideal para sistemas de control de acceso, asistencia y proyectos de identificación.</p>
+        <div class="comp-pins">
+          <span class="pin-tag">SPI (SDA, SCK, MOSI, MISO)</span>
+          <span class="pin-tag">RST</span>
+          <span class="pin-tag">3.3V / GND</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── PANTALLAS Y DISPLAYS ── -->
+  <h2 class="section-title">Pantallas y Displays</h2>
+  <p class="section-desc">Para mostrar información visual al usuario desde el Arduino.</p>
+  <div class="components-grid">
+
+    <!-- LCD 16x2 -->
+    <div class="comp-card">
+      <div class="comp-img">
+        <svg viewBox="0 0 300 170" xmlns="http://www.w3.org/2000/svg">
+          <rect width="300" height="170" fill="#0a1a0a"/>
+          <!-- módulo LCD -->
+          <rect x="40" y="40" width="220" height="90" rx="6" fill="#001f00" stroke="#00aa00" stroke-width="2"/>
+          <!-- pantalla LCD -->
+          <rect x="50" y="50" width="200" height="70" rx="4" fill="#0d4f0d"/>
+          <!-- fila 1 texto -->
+          <text x="65" y="78" font-family="'Share Tech Mono', monospace" font-size="13" fill="#00ff44">Hola Arduino!</text>
+          <!-- fila 2 texto -->
+          <text x="65" y="100" font-family="'Share Tech Mono', monospace" font-size="13" fill="#00ff44">Cultura Digital 2</text>
+          <!-- pines inferiores -->
+          <rect x="50" y="130" width="200" height="8" rx="2" fill="#111"/>
+          <rect x="55"  y="128" width="5" height="12" rx="1" fill="#aaa"/>
+          <rect x="65"  y="128" width="5" height="12" rx="1" fill="#aaa"/>
+          <rect x="75"  y="128" width="5" height="12" rx="1" fill="#aaa"/>
+          <rect x="85"  y="128" width="5" height="12" rx="1" fill="#aaa"/>
+          <rect x="95"  y="128" width="5" height="12" rx="1" fill="#aaa"/>
+          <rect x="105" y="128" width="5" height="12" rx="1" fill="#aaa"/>
+          <rect x="115" y="128" width="5" height="12" rx="1" fill="#aaa"/>
+          <rect x="125" y="128" width="5" height="12" rx="1" fill="#aaa"/>
+          <text x="150" y="155" font-family="monospace" font-size="9" fill="#00aa00" text-anchor="middle">LCD 16×2 (HD44780)</text>
+        </svg>
+      </div>
+      <div class="comp-body">
+        <div class="comp-category">Display · Texto</div>
+        <div class="comp-name">LCD 16×2 con I2C</div>
+        <p class="comp-desc">Pantalla de cristal líquido con 2 filas de 16 caracteres. Con el módulo I2C solo se necesitan 2 cables (SDA/SCL) para mostrar textos y valores.</p>
+        <div class="comp-pins">
+          <span class="pin-tag">SDA</span>
+          <span class="pin-tag">SCL</span>
+          <span class="pin-tag">VCC 5V</span>
+          <span class="pin-tag">GND</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- OLED 0.96" -->
+    <div class="comp-card">
+      <div class="comp-img">
+        <svg viewBox="0 0 300 170" xmlns="http://www.w3.org/2000/svg">
+          <rect width="300" height="170" fill="#0a0a0a"/>
+          <!-- módulo OLED -->
+          <rect x="80" y="30" width="140" height="110" rx="6" fill="#111" stroke="#555" stroke-width="2"/>
+          <!-- pantalla OLED -->
+          <rect x="88" y="38" width="124" height="64" rx="3" fill="#000"/>
+          <!-- contenido pixelado -->
+          <text x="150" y="65" font-family="monospace" font-size="11" fill="#fff" text-anchor="middle">ARDUINO</text>
+          <text x="150" y="80" font-family="monospace" font-size="7" fill="#aaa" text-anchor="middle">OLED 128×64 px</text>
+          <!-- gráfico de barras simple -->
+          <rect x="100" y="88" width="8" height="10" fill="#fff" opacity="0.8"/>
+          <rect x="112" y="83" width="8" height="15" fill="#fff" opacity="0.8"/>
+          <rect x="124" y="78" width="8" height="20" fill="#fff" opacity="0.8"/>
+          <rect x="136" y="85" width="8" height="13" fill="#fff" opacity="0.8"/>
+          <rect x="148" y="80" width="8" height="18" fill="#fff" opacity="0.8"/>
+          <rect x="160" y="86" width="8" height="12" fill="#fff" opacity="0.8"/>
+          <rect x="172" y="82" width="8" height="16" fill="#fff" opacity="0.8"/>
+          <text x="150" y="155" font-family="monospace" font-size="9" fill="#aaa" text-anchor="middle">OLED SSD1306 0.96"</text>
+        </svg>
+      </div>
+      <div class="comp-body">
+        <div class="comp-category">Display · Gráfico</div>
+        <div class="comp-name">OLED SSD1306 0.96"</div>
+        <p class="comp-desc">Pantalla OLED monocromática de 128×64 píxeles con protocolo I2C. Muestra gráficas, íconos y texto. No necesita retroiluminación y consume poca energía.</p>
+        <div class="comp-pins">
+          <span class="pin-tag">SDA</span>
+          <span class="pin-tag">SCL</span>
+          <span class="pin-tag">VCC 3.3–5V</span>
+          <span class="pin-tag">GND</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── TABLA DE PINES ── -->
+  <div class="table-section">
+    <h2 class="section-title">Pines del Arduino UNO</h2>
+    <p class="section-desc">Referencia rápida de los pines más importantes de la placa.</p>
+    <table class="pin-table">
+      <thead>
+        <tr>
+          <th>Pin</th>
+          <th>Tipo</th>
+          <th>Voltaje</th>
+          <th>Función principal</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>D0 (RX)</td><td>Digital</td><td>5V TTL</td><td>Recepción serial (UART)</td></tr>
+        <tr><td>D1 (TX)</td><td>Digital</td><td>5V TTL</td><td>Transmisión serial (UART)</td></tr>
+        <tr><td>D2 – D13</td><td>Digital</td><td>5V</td><td>E/S de propósito general (D3,D5,D6,D9,D10,D11 con PWM)</td></tr>
+        <tr><td>A0 – A5</td><td>Analógico</td><td>0–5V</td><td>Lectura analógica (10 bits, 0–1023)</td></tr>
+        <tr><td>SDA (A4)</td><td>I2C</td><td>5V</td><td>Datos I2C (LCD, OLED, sensores)</td></tr>
+        <tr><td>SCL (A5)</td><td>I2C</td><td>5V</td><td>Reloj I2C</td></tr>
+        <tr><td>MOSI (D11)</td><td>SPI</td><td>5V</td><td>Datos SPI salida</td></tr>
+        <tr><td>MISO (D12)</td><td>SPI</td><td>5V</td><td>Datos SPI entrada</td></tr>
+        <tr><td>SCK (D13)</td><td>SPI</td><td>5V</td><td>Reloj SPI / LED indicador</td></tr>
+        <tr><td>3.3V</td><td>Alimentación</td><td>3.3V / 50mA</td><td>Fuente para módulos de 3.3V</td></tr>
+        <tr><td>5V</td><td>Alimentación</td><td>5V</td><td>Fuente regulada para sensores</td></tr>
+        <tr><td>Vin</td><td>Alimentación</td><td>7–12V</td><td>Entrada de voltaje externo</td></tr>
+        <tr><td>GND</td><td>Tierra</td><td>0V</td><td>Referencia común / tierra</td></tr>
+        <tr><td>RESET</td><td>Control</td><td>–</td><td>Reinicia el microcontrolador</td></tr>
+        <tr><td>AREF</td><td>Referencia</td><td>Variable</td><td>Voltaje de referencia analógica externo</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ── GLOSARIO ── -->
+  <h2 class="section-title">Glosario Básico</h2>
+  <p class="section-desc">Términos clave que debes conocer al trabajar con Arduino.</p>
+  <div class="glossary-grid">
+    <div class="glos-item">
+      <div class="glos-term">Microcontrolador</div>
+      <div class="glos-def">Circuito integrado con CPU, memoria y E/S en un solo chip. El corazón del Arduino.</div>
+    </div>
+    <div class="glos-item">
+      <div class="glos-term">PWM</div>
+      <div class="glos-def">Modulación por Ancho de Pulso. Simula señales analógicas con pulsos digitales (0–255).</div>
+    </div>
+    <div class="glos-item">
+      <div class="glos-term">I2C</div>
+      <div class="glos-def">Protocolo de 2 hilos (SDA+SCL) para comunicar múltiples dispositivos con solo 2 cables.</div>
+    </div>
+    <div class="glos-item">
+      <div class="glos-term">SPI</div>
+      <div class="glos-def">Protocolo serial síncrono de alta velocidad. Usa 4 cables: MOSI, MISO, SCK, SS.</div>
+    </div>
+    <div class="glos-item">
+      <div class="glos-term">UART / Serial</div>
+      <div class="glos-def">Comunicación serial asíncrona. Usada para debug, Bluetooth y comunicación con PC.</div>
+    </div>
+    <div class="glos-item">
+      <div class="glos-term">ADC</div>
+      <div class="glos-def">Convertidor analógico-digital. Arduino UNO tiene 6 canales de 10 bits (0–1023).</div>
+    </div>
+    <div class="glos-item">
+      <div class="glos-term">GND</div>
+      <div class="glos-def">Ground (tierra). Referencia de 0V para todos los circuitos del proyecto.</div>
+    </div>
+    <div class="glos-item">
+      <div class="glos-term">Sketch</div>
+      <div class="glos-def">Nombre del programa en Arduino IDE. Contiene siempre setup() y loop().</div>
+    </div>
+    <div class="glos-item">
+      <div class="glos-term">Librería</div>
+      <div class="glos-def">Código preescrito que facilita usar hardware complejo (ej: Servo.h, Wire.h, DHT.h).</div>
+    </div>
+    <div class="glos-item">
+      <div class="glos-term">Shield</div>
+      <div class="glos-def">Módulo expansor que se conecta directamente sobre el Arduino (WiFi Shield, Motor Shield).</div>
+    </div>
+    <div class="glos-item">
+      <div class="glos-term">Protoboard</div>
+      <div class="glos-def">Tablero de pruebas para armar circuitos sin soldadura, reutilizable e ideal para prototipos.</div>
+    </div>
+    <div class="glos-item">
+      <div class="glos-term">Pull-up / Pull-down</div>
+      <div class="glos-def">Resistencias que definen el estado lógico de un pin cuando no hay señal activa.</div>
+    </div>
+  </div>
+
+</main>
+
+<!-- ════════ FOOTER ════════ -->
+<footer>
+  <strong>Tarea 07 · Componentes de Arduino</strong><br>
+  Centro de Bachillerato Tecnológico Industrial y de Servicios 144<br>
+  Especialidad: Inteligencia Artificial &nbsp;|&nbsp; Emilia Kristel Oseguera Villanueva<br>
+  Docente: Jordy Chirino Balcazar
+</footer>
+
+</body>
+</html>
